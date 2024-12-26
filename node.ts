@@ -6,14 +6,14 @@ class DefaultDict {
   }
 }
 
-class DrawNode {
+class TreeNode2 {
   x: number
   y: number
   val: string
-  children: DrawNode[]
+  children: TreeNode[]
   mod: number
 
-  constructor(val: string, depth: number, children: DrawNode[]) {
+  constructor(val: string, depth: number, children: TreeNode[]) {
     this.x = -1
     this.y = depth
     this.val = val
