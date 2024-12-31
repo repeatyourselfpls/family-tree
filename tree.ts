@@ -77,7 +77,7 @@ class TreeNode {
       // if (node.children[i-1].children.length && node.children[i].children.length) {
       const rightNode = node.children[i]
       const leftNode = node.children[i-1]
-      const rightContour = TreeNode.getRightContour(leftNode)
+      let rightContour = TreeNode.getRightContour(leftNode)
       const leftContour = TreeNode.getLeftContour(rightNode)
 
       // you only need to check minimum depth
@@ -88,12 +88,14 @@ class TreeNode {
         if (distance < 0) {
           rightNode.X += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
           rightNode.mod += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
+          // TODO: Recalculate contours afterwards?
+          rightContour = TreeNode.getRightContour(rightNode)
         }
       }
     }
   }
 
-  // for each level, returns the list of leftmost node
+  // level order traversal of leftmost node's X positions w/ modifier added
   static getLeftContour(node: TreeNode) {
     const contour: TreeNode[] = []
     const queue: [TreeNode, number][] = [[node, 0]]
@@ -114,7 +116,7 @@ class TreeNode {
     return contour
   }
 
-  // for each level, returns the list of rightmost nodes
+  // level order traversal of rightmost node's X positions w/ modifier added
   static getRightContour(node: TreeNode) {
     const contour: TreeNode[] = []
     const queue: [TreeNode, number][] = [[node, 0]]
