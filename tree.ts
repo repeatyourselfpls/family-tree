@@ -79,11 +79,17 @@ class TreeNode {
         if (distance < 0) {
           rightNode.X += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
           rightNode.mod += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
+          // fix the distance
+          this.fixSiblingSeparation(node, leftNode, rightNode)
           // TODO: Recalculate contours afterwards?
           leftContour = TreeNode.getLeftContour(rightNode)
         }
       }
     }
+  }
+
+  static fixSiblingSeparation(parent: TreeNode, left: TreeNode, right: TreeNode) {
+
   }
 
   // level order traversal of leftmost node's X positions w/ modifier added
