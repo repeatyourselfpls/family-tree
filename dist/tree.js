@@ -61,20 +61,24 @@ class TreeNode {
             // if (node.children[i-1].children.length && node.children[i].children.length) {
             const rightNode = node.children[i];
             const leftNode = node.children[i - 1];
-            let rightContour = TreeNode.getRightContour(leftNode);
-            const leftContour = TreeNode.getLeftContour(rightNode);
+            const rightContour = TreeNode.getRightContour(leftNode);
+            let leftContour = TreeNode.getLeftContour(rightNode);
             // you only need to check minimum depth
             const depth = Math.min(rightContour.length, leftContour.length);
             for (let d = 0; i < depth; i++) {
-                const distance = rightContour[d].X - leftContour[d].X;
+                const distance = leftContour[d].X - rightContour[d].X;
                 if (distance < 0) {
                     rightNode.X += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE;
                     rightNode.mod += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE;
+                    // fix the distance
+                    this.fixSiblingSeparation(node, leftNode, rightNode);
                     // TODO: Recalculate contours afterwards?
-                    rightContour = TreeNode.getRightContour(rightNode);
+                    leftContour = TreeNode.getLeftContour(rightNode);
                 }
             }
         }
+    }
+    static fixSiblingSeparation(parent, left, right) {
     }
     // level order traversal of leftmost node's X positions w/ modifier added
     static getLeftContour(node) {

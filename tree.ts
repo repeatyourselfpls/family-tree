@@ -56,57 +56,64 @@ class TreeNode {
 
     // console.log(`Calculating ${node.name}: (${node.X}, ${node.Y}) Mod: ${node.mod}`)
 
-    // check if subtrees clash, adjust X and mod if so
-    // if (node.children.length > 1) {
-    //   this.checkConflicts(node)
-    // }
-  }
-
-  static checkConflicts(node: TreeNode) {
-    // get left contour of right subtree and right contour of left subtree
-    for (let i = 1; i < node.children.length; i++) {
-      // if (node.children[i-1].children.length && node.children[i].children.length) {
-      const rightNode = node.children[i]
-      const leftNode = node.children[i-1]
-      const rightContour = TreeNode.getRightContour(leftNode)
-      let leftContour = TreeNode.getLeftContour(rightNode)
-
-      // you only need to check minimum depth
-      const depth = Math.min(rightContour.length, leftContour.length)
-
-      for (let d = 0; i < depth; i++) {
-        const distance = leftContour[d].X - rightContour[d].X
-        if (distance < 0) {
-          rightNode.X += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
-          rightNode.mod += Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
-          // fix the distance
-          this.fixSiblingSeparation(node, leftNode, rightNode)
-          // TODO: Recalculate contours afterwards?
-          leftContour = TreeNode.getLeftContour(rightNode)
-        }
-      }
+    // check if sibling subtrees clash, adjust X and mod if so
+    if (node.children.length) {
+      this.checkConflicts(node)
     }
   }
 
-  static fixSiblingSeparation(parent: TreeNode, left: TreeNode, right: TreeNode) {
+  static checkConflicts(node: TreeNode) {
+    // the current node can only clash with nodes' children can only clash with it's previous siblings
+    let previousSibling = node.previousSibling
+    while (previousSibling) {
+      if (previousSibling.children.length) {
+        const leftContour = TreeNode.getLeftContour(node)
+        const rightContour = TreeNode.getRightContour(previousSibling)
 
+        const depth = Math.min(rightContour.length, leftContour.length)
+
+        for (let d = 0; d < depth; d++) {
+          const distance = leftContour[d][1] - rightContour[d][1]
+          if (distance < 0) {
+            const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
+            node.X += shift
+            node.mod += shift
+            
+            //fix any distance of siblings that are between these two
+            this.fixSiblingSeparation([], shift)
+            this.checkConflicts(node) // check for conflicts with moved siblings
+          }
+        }
+      }
+      previousSibling = previousSibling.previousSibling
+    }
+  }
+
+  static fixSiblingSeparation(siblingsInBetween: TreeNode[], shiftDistance: number) {
+    const apportionAmount = shiftDistance / (siblingsInBetween.length + 1)
+
+    for (const sibling of siblingsInBetween.reverse()) {
+      sibling.X += apportionAmount
+      sibling.mod += apportionAmount
+    }
   }
 
   // level order traversal of leftmost node's X positions w/ modifier added
+  // we do not alter the node's X value yet, this is used to adjust siblings collisions
   static getLeftContour(node: TreeNode) {
-    const contour: TreeNode[] = []
-    const queue: [TreeNode, number][] = [[node, 0]]
+    const contour: [TreeNode, calculatedX: number][] = []
+    const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, node.mod]]
     let nextLevel = 0
 
     while (queue.length) {
-      const [n, curLevel] = queue.splice(0, 1)[0]
-      if (curLevel === nextLevel) {
+      const [n, level, modSum] = queue.splice(0, 1)[0]
+      if (level === nextLevel) {
         nextLevel += 1
-        contour.push(n)
+        contour.push([n, n.X + modSum])
       }
       
       for (const child of n.children) {
-        queue.push([child, curLevel+1])
+        queue.push([child, level+1, modSum + child.mod])
       }
     }
 
@@ -115,19 +122,19 @@ class TreeNode {
 
   // level order traversal of rightmost node's X positions w/ modifier added
   static getRightContour(node: TreeNode) {
-    const contour: TreeNode[] = []
-    const queue: [TreeNode, number][] = [[node, 0]]
+    const contour: [TreeNode, calculatedX: number][] = []
+    const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, node.mod]]
     let nextLevel = 0
 
     while (queue.length) {
-      const [n, curLevel] = queue.splice(0, 1)[0]
-      if (curLevel === nextLevel) {
+      const [n, level, modSum] = queue.splice(0, 1)[0]
+      if (level === nextLevel) {
         nextLevel += 1
-        contour.push(n)
+        contour.push([n, n.X + modSum])
       }
       
       for (const child of n.children.reverse()) {
-        queue.push([child, curLevel+1])
+        queue.push([child, level+1, modSum + child.mod])
       }
     }
 
