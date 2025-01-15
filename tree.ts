@@ -80,7 +80,8 @@ class TreeNode {
             node.mod += shift
             
             //fix any distance of siblings that are between these two
-            this.fixSiblingSeparation([], shift)
+            const siblingsInBetween = []
+            this.fixSiblingSeparation(siblingsInBetween, shift)
             this.checkConflicts(node) // check for conflicts with moved siblings
           }
         }
