@@ -63,27 +63,24 @@ class TreeNode {
   }
 
   static checkConflicts(node: TreeNode) {
-    // the current node can only clash with nodes' children can only clash with it's previous siblings
     let previousSibling = node.previousSibling
     while (previousSibling) {
-      if (previousSibling.children.length) {
-        const leftContour = TreeNode.getLeftContour(node)
-        const rightContour = TreeNode.getRightContour(previousSibling)
+      let leftContour = TreeNode.getLeftContour(node)
+      const rightContour = TreeNode.getRightContour(previousSibling)
 
-        const depth = Math.min(rightContour.length, leftContour.length)
+      const depth = Math.min(rightContour.length, leftContour.length)
 
-        for (let d = 0; d < depth; d++) {
-          const distance = leftContour[d][1] - rightContour[d][1]
-          if (distance < 0) {
-            const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
-            node.X += shift
-            node.mod += shift
-            
-            //fix any distance of siblings that are between these two
-            const siblingsInBetween = []
-            this.fixSiblingSeparation(siblingsInBetween, shift)
-            this.checkConflicts(node) // check for conflicts with moved siblings
-          }
+      for (let d = 0; d < depth; d++) {
+        const distance = leftContour[d][1] - rightContour[d][1]
+        if (distance < 0) {
+          const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
+          node.X += shift
+          node.mod += shift
+          
+          leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
+          const siblingsInBetween = TreeNode.getSiblingsInBetween(previousSibling, node)
+          this.fixSiblingSeparation(siblingsInBetween, distance)
+          this.checkConflicts(node)
         }
       }
       previousSibling = previousSibling.previousSibling
@@ -99,8 +96,17 @@ class TreeNode {
     }
   }
 
+  static getSiblingsInBetween(start: TreeNode, end: TreeNode) {
+    let siblingsInBetween: TreeNode[] = []
+    while (end.previousSibling && end.previousSibling !== start) {
+      siblingsInBetween.push(end.previousSibling)
+    }
+
+    return siblingsInBetween
+  }
+
   // level order traversal of leftmost node's X positions w/ modifier added
-  // we do not alter the node's X value yet, this is used to adjust siblings collisions
+  // this is used to adjust siblings collisions, we do not alter the node's X value yet
   static getLeftContour(node: TreeNode) {
     const contour: [TreeNode, calculatedX: number][] = []
     const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, node.mod]]
@@ -202,7 +208,6 @@ const O = new TreeNode("O", [E, F, N])
 
 TreeNode.initializeNodes(O, null, 0)
 TreeNode.calculateXMod(O)
-TreeNode.finalizeX(O, 0)
 
 const traversedNodes = TreeNode.levelOrderTraversal(O)
 for (const [n, level] of traversedNodes) {
@@ -211,3 +216,4 @@ for (const [n, level] of traversedNodes) {
 
 console.log(TreeNode.getLeftContour(O))
 console.log(TreeNode.getRightContour(O))
+TreeNode.finalizeX(O, 0)
