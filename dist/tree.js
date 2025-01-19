@@ -79,10 +79,8 @@ class TreeNode {
     static fixSiblingSeparation(siblingsInBetween, shiftDistance) {
         const apportionAmount = shiftDistance / (siblingsInBetween.length + 1);
         for (const sibling of siblingsInBetween.reverse()) {
-            let prev = sibling.X;
             sibling.X += apportionAmount;
             sibling.mod += apportionAmount;
-            console.log(`fixing sibling ${sibling.name}: ${prev} to sibiling.X: ${sibling.X} to sibling.mod: ${sibling.mod}`);
         }
     }
     static getSiblingsInBetween(start, end) {
@@ -181,5 +179,5 @@ TreeNode.calculateXMod(O);
 TreeNode.finalizeX(O, 0);
 const traversedNodes = TreeNode.levelOrderTraversal(O);
 for (const [n, level] of traversedNodes) {
-    console.log(level, n.name, n.X);
+    console.log(level, n.name, `(${n.X}, ${n.mod})`);
 }

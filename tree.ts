@@ -1,5 +1,5 @@
 class TreeNode {
-  static NODE_SIZE = 1 
+  static NODE_SIZE = 1
   static SIBLING_DISTANCE = 0
 
   name = ''
@@ -54,12 +54,12 @@ class TreeNode {
       }
     }
 
-    // console.log(`Calculating ${node.name}: (${node.X}, ${node.Y}) Mod: ${node.mod}`)
-
     // check if sibling subtrees clash, adjust X and mod if so
     if (node.children.length) {
       this.checkConflicts(node)
     }
+
+    // console.log(`Calculating ${node.name}: (${node.X}, ${node.Y}) Mod: ${node.mod}`)
   }
 
   static checkConflicts(node: TreeNode) {
@@ -213,5 +213,5 @@ TreeNode.finalizeX(O, 0)
 
 const traversedNodes = TreeNode.levelOrderTraversal(O)
 for (const [n, level] of traversedNodes) {
-  console.log(level, n.name, n.X)
+  console.log(level, n.name, `(${n.X}, ${n.mod})`)
 }
