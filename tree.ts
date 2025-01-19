@@ -79,7 +79,7 @@ class TreeNode {
           
           leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
           const siblingsInBetween = TreeNode.getSiblingsInBetween(previousSibling, node)
-          this.fixSiblingSeparation(siblingsInBetween, distance)
+          this.fixSiblingSeparation(siblingsInBetween, shift)
           this.checkConflicts(node)
         }
       }
@@ -100,6 +100,7 @@ class TreeNode {
     let siblingsInBetween: TreeNode[] = []
     while (end.previousSibling && end.previousSibling !== start) {
       siblingsInBetween.push(end.previousSibling)
+      end = end.previousSibling
     }
 
     return siblingsInBetween
@@ -109,7 +110,7 @@ class TreeNode {
   // this is used to adjust siblings collisions, we do not alter the node's X value yet
   static getLeftContour(node: TreeNode) {
     const contour: [TreeNode, calculatedX: number][] = []
-    const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, node.mod]]
+    const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, 0]]
     let nextLevel = 0
 
     while (queue.length) {
@@ -120,7 +121,7 @@ class TreeNode {
       }
       
       for (const child of n.children) {
-        queue.push([child, level+1, modSum + child.mod])
+        queue.push([child, level+1, modSum + n.mod])
       }
     }
 
@@ -130,7 +131,7 @@ class TreeNode {
   // level order traversal of rightmost node's X positions w/ modifier added
   static getRightContour(node: TreeNode) {
     const contour: [TreeNode, calculatedX: number][] = []
-    const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, node.mod]]
+    const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, 0]]
     let nextLevel = 0
 
     while (queue.length) {
@@ -141,7 +142,7 @@ class TreeNode {
       }
       
       for (const child of n.children.reverse()) {
-        queue.push([child, level+1, modSum + child.mod])
+        queue.push([child, level+1, modSum + n.mod])
       }
     }
 
@@ -208,12 +209,9 @@ const O = new TreeNode("O", [E, F, N])
 
 TreeNode.initializeNodes(O, null, 0)
 TreeNode.calculateXMod(O)
+TreeNode.finalizeX(O, 0)
 
 const traversedNodes = TreeNode.levelOrderTraversal(O)
 for (const [n, level] of traversedNodes) {
   console.log(level, n.name, n.X)
 }
-
-console.log(TreeNode.getLeftContour(O))
-console.log(TreeNode.getRightContour(O))
-TreeNode.finalizeX(O, 0)
