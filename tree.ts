@@ -1,4 +1,4 @@
-class TreeNode {
+export class TreeNode {
   static NODE_SIZE = 1
   static SIBLING_DISTANCE = 0
 
@@ -129,6 +129,7 @@ class TreeNode {
   }
 
   // level order traversal of rightmost node's X positions w/ modifier added
+  // this is used to adjust siblings collisions, we do not alter the node's X value yet
   static getRightContour(node: TreeNode) {
     const contour: [TreeNode, calculatedX: number][] = []
     const queue: [TreeNode, level: number, modSum: number][] = [[node, 0, 0]]
@@ -186,32 +187,4 @@ class TreeNode {
   getLeftMostChildNode() {
     return this.children[0]
   }
-}
-
-const B = new TreeNode("B", [])
-const C = new TreeNode("C", [])
-const H = new TreeNode("H", [])
-const I = new TreeNode("I", [])
-const J = new TreeNode("J", [])
-const K = new TreeNode("K", [])
-const L = new TreeNode("L", [])
-
-const A = new TreeNode("A", [])
-const D = new TreeNode("D", [B, C])
-const G = new TreeNode("G", [])
-const M = new TreeNode("M", [H, I, J, K, L])
-
-const E = new TreeNode("E", [A, D])
-const F = new TreeNode("F", [])
-const N = new TreeNode("N", [G, M])
-
-const O = new TreeNode("O", [E, F, N])
-
-TreeNode.initializeNodes(O, null, 0)
-TreeNode.calculateXMod(O)
-TreeNode.finalizeX(O, 0)
-
-const traversedNodes = TreeNode.levelOrderTraversal(O)
-for (const [n, level] of traversedNodes) {
-  console.log(level, n.name, `(${n.X}, ${n.mod})`)
 }

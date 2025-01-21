@@ -1,3 +1,5 @@
+import { TreeNode } from "./tree"
+
 export const RADIUS = 50
 export const DIAMETER = RADIUS * 2
 export const SPACING_X = 40
@@ -25,36 +27,14 @@ export function setupBackground(ctx, width, height) {
   }
 }
 
-export const drawAllNodes = (ctx, width, height, levelNodes) => {  
-  let y = RADIUS + 10
-  let x = width / 2
-  const locationMap = new Map()
-
-  while (levelNodes.length) {
-    const nodes = levelNodes.shift()
-    const nodeLevelCount = nodes.length
-
-    if (nodeLevelCount == 1) {
-      const rootNode = nodes[0][0]
-      locationMap.set(rootNode.val, [x, y])
-      
-      drawNode(ctx, x, y, rootNode.val)
-    } else {
-      const countOnEachSide = Math.ceil(nodeLevelCount / 2)
-      x = (width / 2 - (DIAMETER * countOnEachSide) + RADIUS) - ((SPACING_X / 2) * countOnEachSide)
-      
-      if (nodes) {
-        for (const [node, parent] of nodes) {
-          locationMap.set(node.val, [x, y])
-
-          drawNode(ctx, x, y, node.val)
-          drawParentLink(ctx, node.val, parent.val, locationMap)
-
-          x += DIAMETER + SPACING_X
-        }
-      }
-    }
-    y += SPACING_Y
+// pre order traversal drawing
+export function drawAllNodesv2(ctx, node: TreeNode, parentNode: TreeNode | null) {
+  drawNode(ctx, node.X*DIAMETER, node.Y*SPACING_Y, node.name)
+  if (parentNode) {
+    drawParentLink(ctx, node, parentNode)
+  }
+  for (const child of node.children) {
+    drawAllNodesv2(ctx, child, node)
   }
 }
 
@@ -75,11 +55,11 @@ function drawNode(ctx, x, y, val) {
   ctx.fillText(`${val}`, x - textWidth / 2, y + textHeight / 2)
 }
 
-function drawParentLink(ctx, node, parent, locationMap) {  
-  const parent_x = locationMap.get(parent)[0]
-  const parent_y = locationMap.get(parent)[1]
-  const node_x = locationMap.get(node)[0]
-  const node_y = locationMap.get(node)[1]
+function drawParentLink(ctx, node, parent) {  
+  const parent_x = parent.X
+  const parent_y = parent.Y
+  const node_x = node.X
+  const node_y = node.Y
 
   const deltaX = node_x - parent_x
   const deltaY = node_y - parent_y
