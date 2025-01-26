@@ -1,9 +1,8 @@
 import { TreeNode } from "./tree"
 
-export const RADIUS = 50
-export const DIAMETER = RADIUS * 2
-export const SPACING_X = 40
-export const SPACING_Y = 150
+const RADIUS = 50
+const SPACING_X = RADIUS * 2 * 1.25
+const SPACING_Y = 150
 
 export function setupBackground(ctx, width, height) {
   ctx.fillStyle = "wheat"
@@ -27,9 +26,23 @@ export function setupBackground(ctx, width, height) {
   }
 }
 
+export function fitToScreen(
+  leveledNodes: [TreeNode, number][], 
+  width: number, 
+  height: number, 
+) {
+  const startX = width / 2 - (leveledNodes[0][0].X * SPACING_X)
+  const startY = 100
+  for (const [n, _] of leveledNodes) {
+    n.X = startX + (n.X * SPACING_X)
+    n.Y = startY + (n.Y * SPACING_Y)
+  }
+  return leveledNodes.map(([n, _]) => n)
+}
+
 // pre order traversal drawing
 export function drawAllNodesv2(ctx, node: TreeNode, parentNode: TreeNode | null) {
-  drawNode(ctx, node.X*DIAMETER, node.Y*SPACING_Y, node.name)
+  drawNode(ctx, node.X, node.Y, node.name)
   if (parentNode) {
     drawParentLink(ctx, node, parentNode)
   }
@@ -47,7 +60,7 @@ function drawNode(ctx, x, y, val) {
   ctx.arc(x, y, 50, degreeToRadians(0), degreeToRadians(360), false)
   ctx.fill()
   ctx.stroke()
-  
+
   ctx.fillStyle = "black"
   ctx.font = "24px arial"
   const textWidth = ctx.measureText(`${val}`).width

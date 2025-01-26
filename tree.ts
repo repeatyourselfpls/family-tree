@@ -58,8 +58,6 @@ export class TreeNode {
     if (node.children.length) {
       this.checkConflicts(node)
     }
-
-    // console.log(`Calculating ${node.name}: (${node.X}, ${node.Y}) Mod: ${node.mod}`)
   }
 
   static checkConflicts(node: TreeNode) {

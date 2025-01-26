@@ -1,4 +1,4 @@
-import { drawAllNodesv2, setupBackground } from "./draw.js"
+import { drawAllNodesv2, fitToScreen as positionNodesWithinBounds, setupBackground } from "./draw.js"
 import { TreeNode } from "./tree.js"
 
 const B = new TreeNode("B", [])
@@ -9,7 +9,7 @@ const J = new TreeNode("J", [])
 const K = new TreeNode("K", [])
 const L = new TreeNode("L", [])
 
-const A = new TreeNode("A", [])
+const A = new TreeNode("A", [new TreeNode("sam", []), new TreeNode("test", [])])
 const D = new TreeNode("D", [B, C])
 const G = new TreeNode("G", [])
 const M = new TreeNode("M", [H, I, J, K, L])
@@ -33,6 +33,8 @@ const canvas = document.querySelector("#treeCanvas") as HTMLCanvasElement
 const width = canvas.width = window.innerWidth  
 const height = canvas.height = window.innerHeight
 const ctx = canvas.getContext("2d")
+const positionedNodes = positionNodesWithinBounds(structuredClone(traversedNodes), width, height)
+
 
 setupBackground(ctx, width, height) 
-drawAllNodesv2(ctx, O, null)
+drawAllNodesv2(ctx, positionedNodes[0], null)
