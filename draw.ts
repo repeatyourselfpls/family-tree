@@ -1,4 +1,4 @@
-import { TreeNode } from "./tree"
+import { TreeNode } from "./tree.js"
 
 const RADIUS = 50
 const SPACING_X = RADIUS * 2 * 1.25
