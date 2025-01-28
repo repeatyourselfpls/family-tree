@@ -148,6 +148,22 @@ export class TreeNode {
     return contour
   }
 
+
+  // if a node falls off the screen, shift nodes so it's visible
+  static ensureChildrenOnScreen(node: TreeNode) {
+    const leftContour = TreeNode.getLeftContour(node)
+    let shiftAmount = 0
+
+    for (const [_, x] of leftContour) {
+      shiftAmount = Math.min(shiftAmount, x)
+    }
+
+    if (shiftAmount < 0) {
+      node.X += Math.abs(shiftAmount)
+      node.mod += Math.abs(shiftAmount)
+    }
+  }
+
   static finalizeX(node: TreeNode, modSum: number) {
     node.X += modSum
     modSum += node.mod
