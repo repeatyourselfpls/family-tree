@@ -1,6 +1,7 @@
 export class TreeNode {
   static NODE_SIZE = 1
   static SIBLING_DISTANCE = 0
+  static TREE_DISTANCE = 0
 
   name = ''
   children: TreeNode[] = []
@@ -61,6 +62,7 @@ export class TreeNode {
   }
 
   static checkConflicts(node: TreeNode) {
+    const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
     let previousSibling = node.previousSibling
     while (previousSibling) {
       let leftContour = TreeNode.getLeftContour(node)
@@ -70,7 +72,7 @@ export class TreeNode {
 
       for (let d = 0; d < depth; d++) {
         const distance = leftContour[d][1] - rightContour[d][1]
-        if (distance < 0) {
+        if (distance < minDistance) {
           const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
           node.X += shift
           node.mod += shift

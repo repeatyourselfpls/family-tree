@@ -54,6 +54,7 @@ export class TreeNode {
         }
     }
     static checkConflicts(node) {
+        const minDistance = TreeNode.NODE_SIZE;
         let previousSibling = node.previousSibling;
         while (previousSibling) {
             let leftContour = TreeNode.getLeftContour(node);
@@ -61,7 +62,7 @@ export class TreeNode {
             const depth = Math.min(rightContour.length, leftContour.length);
             for (let d = 0; d < depth; d++) {
                 const distance = leftContour[d][1] - rightContour[d][1];
-                if (distance < 0) {
+                if (distance < minDistance) {
                     const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE;
                     node.X += shift;
                     node.mod += shift;
@@ -124,6 +125,18 @@ export class TreeNode {
             }
         }
         return contour;
+    }
+    // if a node falls off the screen, shift nodes so it's visible
+    static ensureChildrenOnScreen(node) {
+        const leftContour = TreeNode.getLeftContour(node);
+        let shiftAmount = 0;
+        for (const [_, x] of leftContour) {
+            shiftAmount = Math.min(shiftAmount, x);
+        }
+        if (shiftAmount < 0) {
+            node.X += Math.abs(shiftAmount);
+            node.mod += Math.abs(shiftAmount);
+        }
     }
     static finalizeX(node, modSum) {
         node.X += modSum;
