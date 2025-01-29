@@ -87,6 +87,37 @@ export class TreeNode {
     }
   }
 
+  static checkConflicts2(node: TreeNode) {
+    const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
+    let leftMostSibling = node.previousSibling
+
+    while (leftMostSibling && leftMostSibling.previousSibling) {
+      leftMostSibling = leftMostSibling.previousSibling
+    }
+
+    let sibling = leftMostSibling
+    const leftContour = TreeNode.getLeftContour(node)
+    while (sibling && sibling !== node) {
+      const rightContour = TreeNode.getRightContour(sibling)
+      const depth = Math.min(leftContour.length, rightContour.length)
+
+      for (let d = 0; d < depth; d++) {
+        const distance = leftContour[d][1] - rightContour[d][1]
+        if (distance < minDistance) {
+          const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
+          node.X += shift
+          node.mod += shift
+          
+          const siblingsInBetween = TreeNode.getSiblingsInBetween(sibling, node)
+          this.fixSiblingSeparation(siblingsInBetween, shift)
+          this.checkConflicts2(node)
+        }
+      }
+
+      sibling = sibling.getNextSibling()
+    }
+  }
+
   static fixSiblingSeparation(siblingsInBetween: TreeNode[], shiftDistance: number) {
     const apportionAmount = shiftDistance / (siblingsInBetween.length + 1)
 
