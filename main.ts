@@ -20,7 +20,7 @@ const N = new TreeNode("N", [G, M])
 
 const O = new TreeNode("O", [E, F, N])
 
-TreeNode.initializeNodes(O, null, 0)
+TreeNode.initializeNodes(O, null, null, null, 0)
 TreeNode.calculateXMod(O)
 TreeNode.finalizeX(O, 0)
 

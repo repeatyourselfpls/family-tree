@@ -5,7 +5,9 @@ export class TreeNode {
 
   name = ''
   children: TreeNode[] = []
+  parent: TreeNode | null = null
   previousSibling: TreeNode | null = null
+  nextSibling: TreeNode | null = null
   mod = 0
   X = 0
   Y = -1
@@ -16,14 +18,25 @@ export class TreeNode {
   }
 
   // Attaches previous siblings and a base Y for each level 
-  static initializeNodes(node: TreeNode, previousSibling: TreeNode | null, startingY: number) {
+  static initializeNodes(
+    node: TreeNode,
+    parent: TreeNode | null,
+    previousSibling: TreeNode | null, 
+    nextSibling: TreeNode | null, 
+    startingY: number
+  ) {
     node.Y = startingY
     node.previousSibling = previousSibling
+    node.nextSibling = nextSibling
+    node.parent = parent
     for (let i = 0; i < node.children.length; i++) {
       this.initializeNodes(
-        node.children[i], 
-        i > 0 ? node.children[i-1] : null, 
-        startingY+1) 
+        node.children[i],
+        node,
+        i > 0 ? node.children[i-1] : null,
+        i < node.children.length ? node.children[i+1] : null,
+        startingY + 1
+      )
     }
   }
 
@@ -76,7 +89,7 @@ export class TreeNode {
           const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
           node.X += shift
           node.mod += shift
-          
+
           leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
           const siblingsInBetween = TreeNode.getSiblingsInBetween(previousSibling, node)
           this.fixSiblingSeparation(siblingsInBetween, shift)
@@ -96,8 +109,8 @@ export class TreeNode {
     }
 
     let sibling = leftMostSibling
-    const leftContour = TreeNode.getLeftContour(node)
     while (sibling && sibling !== node) {
+      let leftContour = TreeNode.getLeftContour(node)
       const rightContour = TreeNode.getRightContour(sibling)
       const depth = Math.min(leftContour.length, rightContour.length)
 
@@ -107,7 +120,7 @@ export class TreeNode {
           const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
           node.X += shift
           node.mod += shift
-          
+
           const siblingsInBetween = TreeNode.getSiblingsInBetween(sibling, node)
           this.fixSiblingSeparation(siblingsInBetween, shift)
           this.checkConflicts2(node)
@@ -150,9 +163,9 @@ export class TreeNode {
         nextLevel += 1
         contour.push([n, n.X + modSum])
       }
-      
+
       for (const child of n.children) {
-        queue.push([child, level+1, modSum + n.mod])
+        queue.push([child, level + 1, modSum + n.mod])
       }
     }
 
@@ -172,9 +185,9 @@ export class TreeNode {
         nextLevel += 1
         contour.push([n, n.X + modSum])
       }
-      
+
       for (const child of n.children.reverse()) {
-        queue.push([child, level+1, modSum + n.mod])
+        queue.push([child, level + 1, modSum + n.mod])
       }
     }
 
@@ -202,7 +215,7 @@ export class TreeNode {
     modSum += node.mod
 
     for (const child of node.children) {
-      this.finalizeX(child, modSum)  
+      this.finalizeX(child, modSum)
     }
   }
 
@@ -215,7 +228,7 @@ export class TreeNode {
       traversal.push([curr, level])
       if (curr.children.length) {
         for (const child of curr.children) {
-          queue.push([child, level+1])
+          queue.push([child, level + 1])
         }
       }
     }
@@ -233,5 +246,25 @@ export class TreeNode {
 
   getLeftMostChildNode() {
     return this.children[0]
+  }
+
+  getPreviousSibling() {
+    return this.previousSibling;
+  }
+
+  getNextSibling() {
+    return this.nextSibling;
+  }
+
+  getLeftMostSibling() {
+    return this.parent ? this.parent.children[0] : null
+  }
+
+  getRightMostSibling() {
+    if (this.parent) {
+      const l = this.parent.children.length
+      return this.parent.children[l-1]
+    }
+    return null
   }
 }
