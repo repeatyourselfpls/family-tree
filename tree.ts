@@ -76,39 +76,35 @@ export class TreeNode {
 
   static checkConflicts(node: TreeNode) {
     const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
-    let previousSibling = node.previousSibling
-    while (previousSibling) {
+    let leftSibling = node.getLeftMostSibling()
+    while (leftSibling && leftSibling != node) {
       let leftContour = TreeNode.getLeftContour(node)
-      const rightContour = TreeNode.getRightContour(previousSibling)
+      const rightContour = TreeNode.getRightContour(leftSibling)
 
       const depth = Math.min(rightContour.length, leftContour.length)
 
       for (let d = 0; d < depth; d++) {
         const distance = leftContour[d][1] - rightContour[d][1]
         if (distance < minDistance) {
-          const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
+          const shift = distance < 0 ? Math.abs(distance) + minDistance : minDistance - distance
           node.X += shift
           node.mod += shift
 
           leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
-          const siblingsInBetween = TreeNode.getSiblingsInBetween(previousSibling, node)
+          const siblingsInBetween = TreeNode.getSiblingsInBetween(leftSibling, node)
           this.fixSiblingSeparation(siblingsInBetween, shift)
           this.checkConflicts(node)
         }
       }
-      previousSibling = previousSibling.previousSibling
+      leftSibling = leftSibling.getNextSibling()
     }
   }
 
   static checkConflicts2(node: TreeNode) {
     const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
-    let leftMostSibling = node.previousSibling
+    let shiftValue = 0 // only shift after u find the max shift distance for each level of each sibling
 
-    while (leftMostSibling && leftMostSibling.previousSibling) {
-      leftMostSibling = leftMostSibling.previousSibling
-    }
-
-    let sibling = leftMostSibling
+    let sibling = node.getLeftMostSibling()
     while (sibling && sibling !== node) {
       let leftContour = TreeNode.getLeftContour(node)
       const rightContour = TreeNode.getRightContour(sibling)
@@ -116,18 +112,24 @@ export class TreeNode {
 
       for (let d = 0; d < depth; d++) {
         const distance = leftContour[d][1] - rightContour[d][1]
-        if (distance < minDistance) {
-          const shift = Math.abs(distance) + TreeNode.SIBLING_DISTANCE + TreeNode.NODE_SIZE
-          node.X += shift
-          node.mod += shift
-
-          const siblingsInBetween = TreeNode.getSiblingsInBetween(sibling, node)
-          this.fixSiblingSeparation(siblingsInBetween, shift)
-          this.checkConflicts2(node)
+        if (distance + shiftValue < minDistance) {
+          shiftValue = Math.max(minDistance - distance, shiftValue)
         }
       }
 
+      if (shiftValue) {
+        const siblingsInBetween = TreeNode.getSiblingsInBetween(sibling, node)
+        this.fixSiblingSeparation(siblingsInBetween, shiftValue)
+        this.checkConflicts2(node)
+      }
+
       sibling = sibling.getNextSibling()
+    }
+
+    if (shiftValue) {
+      node.X += shiftValue
+      node.mod += shiftValue
+      shiftValue = 0
     }
   }
 
