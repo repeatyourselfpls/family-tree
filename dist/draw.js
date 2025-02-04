@@ -29,13 +29,13 @@ export function fitToScreen(leveledNodes, width, height) {
     return leveledNodes.map(([n, _]) => n);
 }
 // pre order traversal drawing
-export function drawAllNodesv2(ctx, node, parentNode) {
+export function drawAllNodes(ctx, node, parentNode) {
     drawNode(ctx, node.X, node.Y, node.name);
     if (parentNode) {
         drawParentLink(ctx, node, parentNode);
     }
     for (const child of node.children) {
-        drawAllNodesv2(ctx, child, node);
+        drawAllNodes(ctx, child, node);
     }
 }
 function drawNode(ctx, x, y, val) {

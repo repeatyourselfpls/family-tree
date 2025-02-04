@@ -70,7 +70,7 @@ export class TreeNode {
 
     // check if sibling subtrees clash, adjust X and mod if so
     if (node.children.length) {
-      this.checkConflicts(node)
+      this.checkConflicts2(node)
     }
   }
 
@@ -92,7 +92,7 @@ export class TreeNode {
 
           leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
           const siblingsInBetween = TreeNode.getSiblingsInBetween(leftSibling, node)
-          this.fixSiblingSeparation(siblingsInBetween, shift)
+          this.centerNodesBetween(siblingsInBetween, shift)
           this.checkConflicts(node)
         }
       }
@@ -118,8 +118,7 @@ export class TreeNode {
       }
 
       if (shiftValue) {
-        const siblingsInBetween = TreeNode.getSiblingsInBetween(sibling, node)
-        this.fixSiblingSeparation(siblingsInBetween, shiftValue)
+        this.centerNodesBetween2(sibling, node)
         this.checkConflicts2(node)
       }
 
@@ -133,12 +132,37 @@ export class TreeNode {
     }
   }
 
-  static fixSiblingSeparation(siblingsInBetween: TreeNode[], shiftDistance: number) {
+  static centerNodesBetween(siblingsInBetween: TreeNode[], shiftDistance: number) {
     const apportionAmount = shiftDistance / (siblingsInBetween.length + 1)
 
     for (const sibling of siblingsInBetween.reverse()) {
       sibling.X += apportionAmount
       sibling.mod += apportionAmount
+    }
+  }
+
+  static centerNodesBetween2(leftNode: TreeNode, rightNode: TreeNode) {
+    const leftIndex = leftNode.parent?.children.indexOf(leftNode) || 0
+    const rightIndex = rightNode.parent?.children.indexOf(rightNode) || 0
+
+    const numNodesInBetween = rightIndex - leftIndex - 1
+
+    if (numNodesInBetween > 0) {
+      const distanceBetweenNodes = (leftNode.X - rightNode.X) / (numNodesInBetween + 1)
+
+      let count = 0
+      for (let i = leftIndex + 1; i < rightIndex; i++) {
+        const middleNode = leftNode.parent?.children[i] || new TreeNode("", [])
+
+        const desiredX = rightNode.X + (distanceBetweenNodes * count)
+        const offset = desiredX - middleNode.X
+        middleNode.X += offset
+        middleNode.mod += offset
+
+        count++
+      }
+
+      this.checkConflicts2(leftNode)
     }
   }
 

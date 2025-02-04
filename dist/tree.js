@@ -54,7 +54,7 @@ export class TreeNode {
         }
         // check if sibling subtrees clash, adjust X and mod if so
         if (node.children.length) {
-            this.checkConflicts(node);
+            this.checkConflicts2(node);
         }
     }
     static checkConflicts(node) {
@@ -72,7 +72,7 @@ export class TreeNode {
                     node.mod += shift;
                     leftContour = TreeNode.getLeftContour(node); // make adjusted comparison further level down
                     const siblingsInBetween = TreeNode.getSiblingsInBetween(leftSibling, node);
-                    this.fixSiblingSeparation(siblingsInBetween, shift);
+                    this.centerNodesBetween(siblingsInBetween, shift);
                     this.checkConflicts(node);
                 }
             }
@@ -94,8 +94,7 @@ export class TreeNode {
                 }
             }
             if (shiftValue) {
-                const siblingsInBetween = TreeNode.getSiblingsInBetween(sibling, node);
-                this.fixSiblingSeparation(siblingsInBetween, shiftValue);
+                this.centerNodesBetween2(sibling, node);
                 this.checkConflicts2(node);
             }
             sibling = sibling.getNextSibling();
@@ -106,11 +105,30 @@ export class TreeNode {
             shiftValue = 0;
         }
     }
-    static fixSiblingSeparation(siblingsInBetween, shiftDistance) {
+    static centerNodesBetween(siblingsInBetween, shiftDistance) {
         const apportionAmount = shiftDistance / (siblingsInBetween.length + 1);
         for (const sibling of siblingsInBetween.reverse()) {
             sibling.X += apportionAmount;
             sibling.mod += apportionAmount;
+        }
+    }
+    static centerNodesBetween2(leftNode, rightNode) {
+        var _a, _b, _c;
+        const leftIndex = ((_a = leftNode.parent) === null || _a === void 0 ? void 0 : _a.children.indexOf(leftNode)) || 0;
+        const rightIndex = ((_b = rightNode.parent) === null || _b === void 0 ? void 0 : _b.children.indexOf(rightNode)) || 0;
+        const numNodesInBetween = rightIndex - leftIndex - 1;
+        if (numNodesInBetween > 0) {
+            const distanceBetweenNodes = (leftNode.X - rightNode.X) / (numNodesInBetween + 1);
+            let count = 0;
+            for (let i = leftIndex + 1; i < rightIndex; i++) {
+                const middleNode = ((_c = leftNode.parent) === null || _c === void 0 ? void 0 : _c.children[i]) || new TreeNode("", []);
+                const desiredX = rightNode.X + (distanceBetweenNodes * count);
+                const offset = desiredX - middleNode.X;
+                middleNode.X += offset;
+                middleNode.mod += offset;
+                count++;
+            }
+            this.checkConflicts2(leftNode);
         }
     }
     static getSiblingsInBetween(start, end) {

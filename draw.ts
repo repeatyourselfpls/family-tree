@@ -41,13 +41,13 @@ export function fitToScreen(
 }
 
 // pre order traversal drawing
-export function drawAllNodesv2(ctx, node: TreeNode, parentNode: TreeNode | null) {
+export function drawAllNodes(ctx, node: TreeNode, parentNode: TreeNode | null) {
   drawNode(ctx, node.X, node.Y, node.name)
   if (parentNode) {
     drawParentLink(ctx, node, parentNode)
   }
   for (const child of node.children) {
-    drawAllNodesv2(ctx, child, node)
+    drawAllNodes(ctx, child, node)
   }
 }
 
