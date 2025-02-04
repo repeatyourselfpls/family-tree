@@ -70,7 +70,7 @@ export class TreeNode {
 
     // check if sibling subtrees clash, adjust X and mod if so
     if (node.children.length) {
-      this.checkConflicts2(node)
+      this.checkConflicts(node)
     }
   }
 
@@ -91,9 +91,7 @@ export class TreeNode {
           node.mod += shift
 
           leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
-          const siblingsInBetween = TreeNode.getSiblingsInBetween(leftSibling, node)
-          this.centerNodesBetween(siblingsInBetween, shift)
-          this.checkConflicts(node)
+          this.centerNodesBetween(leftSibling, node)
         }
       }
       leftSibling = leftSibling.getNextSibling()
@@ -118,8 +116,7 @@ export class TreeNode {
       }
 
       if (shiftValue) {
-        this.centerNodesBetween2(sibling, node)
-        this.checkConflicts2(node)
+        this.centerNodesBetween(sibling, node)
       }
 
       sibling = sibling.getNextSibling()
@@ -132,16 +129,7 @@ export class TreeNode {
     }
   }
 
-  static centerNodesBetween(siblingsInBetween: TreeNode[], shiftDistance: number) {
-    const apportionAmount = shiftDistance / (siblingsInBetween.length + 1)
-
-    for (const sibling of siblingsInBetween.reverse()) {
-      sibling.X += apportionAmount
-      sibling.mod += apportionAmount
-    }
-  }
-
-  static centerNodesBetween2(leftNode: TreeNode, rightNode: TreeNode) {
+  static centerNodesBetween(leftNode: TreeNode, rightNode: TreeNode) {
     const leftIndex = leftNode.parent?.children.indexOf(leftNode) || 0
     const rightIndex = rightNode.parent?.children.indexOf(rightNode) || 0
 
@@ -154,7 +142,7 @@ export class TreeNode {
       for (let i = leftIndex + 1; i < rightIndex; i++) {
         const middleNode = leftNode.parent?.children[i] || new TreeNode("", [])
 
-        const desiredX = rightNode.X + (distanceBetweenNodes * count)
+        const desiredX = leftNode.X + (distanceBetweenNodes * count)
         const offset = desiredX - middleNode.X
         middleNode.X += offset
         middleNode.mod += offset
@@ -162,7 +150,7 @@ export class TreeNode {
         count++
       }
 
-      this.checkConflicts2(leftNode)
+      this.checkConflicts2(rightNode)
     }
   }
 
