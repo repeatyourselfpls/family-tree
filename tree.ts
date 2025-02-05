@@ -70,17 +70,17 @@ export class TreeNode {
 
     // check if sibling subtrees clash, adjust X and mod if so
     if (node.children.length) {
-      this.checkConflicts(node)
+      TreeNode.checkConflicts2(node)
     }
   }
 
+  // shifts everytime, but resets the contour after each level shift
   static checkConflicts(node: TreeNode) {
     const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
     let leftSibling = node.getLeftMostSibling()
     while (leftSibling && leftSibling != node) {
       let leftContour = TreeNode.getLeftContour(node)
       const rightContour = TreeNode.getRightContour(leftSibling)
-
       const depth = Math.min(rightContour.length, leftContour.length)
 
       for (let d = 0; d < depth; d++) {
@@ -91,41 +91,39 @@ export class TreeNode {
           node.mod += shift
 
           leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
-          this.centerNodesBetween(leftSibling, node)
+          TreeNode.centerNodesBetween(leftSibling, node)
         }
       }
       leftSibling = leftSibling.getNextSibling()
     }
   }
 
+  // only shifts after examining each level of all siblings
   static checkConflicts2(node: TreeNode) {
     const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
-    let shiftValue = 0 // only shift after u find the max shift distance for each level of each sibling
 
-    let sibling = node.getLeftMostSibling()
-    while (sibling && sibling !== node) {
-      let leftContour = TreeNode.getLeftContour(node)
-      const rightContour = TreeNode.getRightContour(sibling)
+    let leftSibling = node.getLeftMostSibling()
+    while (leftSibling && leftSibling !== node) {
+      let shiftValue = 0 // only shift after u find the max shift distance for each level of sibling
+
+      const leftContour = TreeNode.getLeftContour(node)
+      const rightContour = TreeNode.getRightContour(leftSibling)
       const depth = Math.min(leftContour.length, rightContour.length)
 
       for (let d = 0; d < depth; d++) {
         const distance = leftContour[d][1] - rightContour[d][1]
         if (distance + shiftValue < minDistance) {
-          shiftValue = Math.max(minDistance - distance, shiftValue)
+          shiftValue = Math.max(minDistance - distance, shiftValue) // aggregate the max shift value for each level of this sibling
         }
       }
 
       if (shiftValue) {
-        this.centerNodesBetween(sibling, node)
+        node.X += shiftValue
+        node.mod += shiftValue
+        TreeNode.centerNodesBetween(leftSibling, node)
       }
 
-      sibling = sibling.getNextSibling()
-    }
-
-    if (shiftValue) {
-      node.X += shiftValue
-      node.mod += shiftValue
-      shiftValue = 0
+      leftSibling = leftSibling.getNextSibling()
     }
   }
 
@@ -134,34 +132,24 @@ export class TreeNode {
     const rightIndex = rightNode.parent?.children.indexOf(rightNode) || 0
 
     const numNodesInBetween = rightIndex - leftIndex - 1
-
     if (numNodesInBetween > 0) {
-      const distanceBetweenNodes = (leftNode.X - rightNode.X) / (numNodesInBetween + 1)
-
-      let count = 0
+      const distanceBetweenNodes = (rightNode.X - leftNode.X) / (numNodesInBetween + 1)
+      let count = 1
       for (let i = leftIndex + 1; i < rightIndex; i++) {
         const middleNode = leftNode.parent?.children[i] || new TreeNode("", [])
 
         const desiredX = leftNode.X + (distanceBetweenNodes * count)
         const offset = desiredX - middleNode.X
+
+        console.log(middleNode.name, middleNode.X, desiredX, offset)
         middleNode.X += offset
         middleNode.mod += offset
 
         count++
       }
 
-      this.checkConflicts2(rightNode)
+      TreeNode.checkConflicts2(rightNode)
     }
-  }
-
-  static getSiblingsInBetween(start: TreeNode, end: TreeNode) {
-    let siblingsInBetween: TreeNode[] = []
-    while (end.previousSibling && end.previousSibling !== start) {
-      siblingsInBetween.push(end.previousSibling)
-      end = end.previousSibling
-    }
-
-    return siblingsInBetween
   }
 
   // level order traversal of leftmost node's X positions w/ modifier added

@@ -54,7 +54,7 @@ export class TreeNode {
         }
         // check if sibling subtrees clash, adjust X and mod if so
         if (node.children.length) {
-            this.checkConflicts(node);
+            TreeNode.checkConflicts2(node);
         }
     }
     static checkConflicts(node) {
@@ -71,35 +71,33 @@ export class TreeNode {
                     node.X += shift;
                     node.mod += shift;
                     leftContour = TreeNode.getLeftContour(node); // make adjusted comparison further level down
-                    this.centerNodesBetween(leftSibling, node);
+                    TreeNode.centerNodesBetween(leftSibling, node);
                 }
             }
             leftSibling = leftSibling.getNextSibling();
         }
     }
+    // shifts if siblings' children conflict. only shifts after examining each level of all siblings
     static checkConflicts2(node) {
         const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE;
-        let shiftValue = 0; // only shift after u find the max shift distance for each level of each sibling
-        let sibling = node.getLeftMostSibling();
-        while (sibling && sibling !== node) {
-            let leftContour = TreeNode.getLeftContour(node);
-            const rightContour = TreeNode.getRightContour(sibling);
+        let leftSibling = node.getLeftMostSibling();
+        while (leftSibling && leftSibling !== node) {
+            let shiftValue = 0; // only shift after u find the max shift distance for each level of sibling
+            const leftContour = TreeNode.getLeftContour(node);
+            const rightContour = TreeNode.getRightContour(leftSibling);
             const depth = Math.min(leftContour.length, rightContour.length);
             for (let d = 0; d < depth; d++) {
                 const distance = leftContour[d][1] - rightContour[d][1];
                 if (distance + shiftValue < minDistance) {
-                    shiftValue = Math.max(minDistance - distance, shiftValue);
+                    shiftValue = Math.max(minDistance - distance, shiftValue); // aggregate the max shift value for each level of this sibling
                 }
             }
             if (shiftValue) {
-                this.centerNodesBetween(sibling, node);
+                node.X += shiftValue;
+                node.mod += shiftValue;
+                TreeNode.centerNodesBetween(leftSibling, node);
             }
-            sibling = sibling.getNextSibling();
-        }
-        if (shiftValue) {
-            node.X += shiftValue;
-            node.mod += shiftValue;
-            shiftValue = 0;
+            leftSibling = leftSibling.getNextSibling();
         }
     }
     static centerNodesBetween(leftNode, rightNode) {
@@ -108,26 +106,19 @@ export class TreeNode {
         const rightIndex = ((_b = rightNode.parent) === null || _b === void 0 ? void 0 : _b.children.indexOf(rightNode)) || 0;
         const numNodesInBetween = rightIndex - leftIndex - 1;
         if (numNodesInBetween > 0) {
-            const distanceBetweenNodes = (leftNode.X - rightNode.X) / (numNodesInBetween + 1);
-            let count = 0;
+            const distanceBetweenNodes = (rightNode.X - leftNode.X) / (numNodesInBetween + 1);
+            let count = 1;
             for (let i = leftIndex + 1; i < rightIndex; i++) {
                 const middleNode = ((_c = leftNode.parent) === null || _c === void 0 ? void 0 : _c.children[i]) || new TreeNode("", []);
                 const desiredX = leftNode.X + (distanceBetweenNodes * count);
                 const offset = desiredX - middleNode.X;
+                console.log(middleNode.name, middleNode.X, desiredX, offset);
                 middleNode.X += offset;
                 middleNode.mod += offset;
                 count++;
             }
-            this.checkConflicts2(rightNode);
+            TreeNode.checkConflicts2(rightNode);
         }
-    }
-    static getSiblingsInBetween(start, end) {
-        let siblingsInBetween = [];
-        while (end.previousSibling && end.previousSibling !== start) {
-            siblingsInBetween.push(end.previousSibling);
-            end = end.previousSibling;
-        }
-        return siblingsInBetween;
     }
     // level order traversal of leftmost node's X positions w/ modifier added
     // this is used to adjust siblings collisions, we do not alter the node's X value yet
