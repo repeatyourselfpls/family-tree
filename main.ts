@@ -88,4 +88,4 @@ const JW = new TreeNode("JW", [SB, BS, HH, BK])
 
 const TO = new TreeNode("TO", [JW])
 
-execute(O)
+execute(TO)
