@@ -202,7 +202,7 @@ export class TreeNode {
     const leftContour = TreeNode.getLeftContour(node)
     let shiftAmount = 0
 
-    for (const [_, x] of leftContour) {
+    for (const [, x] of leftContour) {
       shiftAmount = Math.min(shiftAmount, x)
     }
 
