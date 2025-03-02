@@ -78,7 +78,7 @@ export class TreeNode {
             leftSibling = leftSibling.getNextSibling();
         }
     }
-    // only shifts after examining each level of all siblings
+    // you shift only after all levels of a sibling are consulted
     static checkConflicts2(node) {
         const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE;
         let leftSibling = node.getLeftMostSibling();
@@ -151,7 +151,7 @@ export class TreeNode {
                 nextLevel += 1;
                 contour.push([n, n.X + modSum]);
             }
-            for (const child of n.children.reverse()) {
+            for (const child of n.children.slice().reverse()) {
                 queue.push([child, level + 1, modSum + n.mod]);
             }
         }
