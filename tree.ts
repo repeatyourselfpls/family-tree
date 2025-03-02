@@ -70,7 +70,7 @@ export class TreeNode {
 
     // check if sibling subtrees clash, adjust X and mod if so
     if (node.children.length) {
-      this.checkConflicts2(node)
+      this.checkConflicts(node)
     }
   }
 
@@ -91,15 +91,14 @@ export class TreeNode {
           node.mod += shift
 
           leftContour = TreeNode.getLeftContour(node) // make adjusted comparison further level down
-          const siblingsInBetween = TreeNode.getSiblingsInBetween(leftSibling, node)
-          this.centerNodesBetween(siblingsInBetween, shift)
-          this.checkConflicts(node)
+          this.centerNodeBetween(leftSibling, node)
         }
       }
       leftSibling = leftSibling.getNextSibling()
     }
   }
 
+  // TODO: modify this so that you shift only after all levels of a sibling are consulted
   static checkConflicts2(node: TreeNode) {
     const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
     let shiftValue = 0 // only shift after u find the max shift distance for each level of each sibling
@@ -118,8 +117,7 @@ export class TreeNode {
       }
 
       if (shiftValue) {
-        this.centerNodesBetween2(sibling, node)
-        this.checkConflicts2(node)
+        this.centerNodeBetween(sibling, node)
       }
 
       sibling = sibling.getNextSibling()
@@ -132,16 +130,7 @@ export class TreeNode {
     }
   }
 
-  static centerNodesBetween(siblingsInBetween: TreeNode[], shiftDistance: number) {
-    const apportionAmount = shiftDistance / (siblingsInBetween.length + 1)
-
-    for (const sibling of siblingsInBetween.reverse()) {
-      sibling.X += apportionAmount
-      sibling.mod += apportionAmount
-    }
-  }
-
-  static centerNodesBetween2(leftNode: TreeNode, rightNode: TreeNode) {
+  static centerNodeBetween(leftNode: TreeNode, rightNode: TreeNode) {
     const leftIndex = leftNode.parent?.children.indexOf(leftNode) || 0
     const rightIndex = rightNode.parent?.children.indexOf(rightNode) || 0
 
@@ -162,7 +151,7 @@ export class TreeNode {
         count++
       }
 
-      this.checkConflicts2(leftNode)
+      this.checkConflicts(leftNode)
     }
   }
 
@@ -212,7 +201,7 @@ export class TreeNode {
         contour.push([n, n.X + modSum])
       }
 
-      for (const child of n.children.reverse()) {
+      for (const child of n.children.slice().reverse()) {
         queue.push([child, level + 1, modSum + n.mod])
       }
     }

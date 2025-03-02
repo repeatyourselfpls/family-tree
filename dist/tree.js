@@ -54,7 +54,7 @@ export class TreeNode {
         }
         // check if sibling subtrees clash, adjust X and mod if so
         if (node.children.length) {
-            this.checkConflicts2(node);
+            this.checkConflicts(node);
         }
     }
     static checkConflicts(node) {
@@ -71,9 +71,7 @@ export class TreeNode {
                     node.X += shift;
                     node.mod += shift;
                     leftContour = TreeNode.getLeftContour(node); // make adjusted comparison further level down
-                    const siblingsInBetween = TreeNode.getSiblingsInBetween(leftSibling, node);
-                    this.centerNodesBetween(siblingsInBetween, shift);
-                    this.checkConflicts(node);
+                    this.centerNodeBetween(leftSibling, node);
                 }
             }
             leftSibling = leftSibling.getNextSibling();
@@ -94,8 +92,7 @@ export class TreeNode {
                 }
             }
             if (shiftValue) {
-                this.centerNodesBetween2(sibling, node);
-                this.checkConflicts2(node);
+                this.centerNodeBetween(sibling, node);
             }
             sibling = sibling.getNextSibling();
         }
@@ -105,14 +102,7 @@ export class TreeNode {
             shiftValue = 0;
         }
     }
-    static centerNodesBetween(siblingsInBetween, shiftDistance) {
-        const apportionAmount = shiftDistance / (siblingsInBetween.length + 1);
-        for (const sibling of siblingsInBetween.reverse()) {
-            sibling.X += apportionAmount;
-            sibling.mod += apportionAmount;
-        }
-    }
-    static centerNodesBetween2(leftNode, rightNode) {
+    static centerNodeBetween(leftNode, rightNode) {
         var _a, _b, _c;
         const leftIndex = ((_a = leftNode.parent) === null || _a === void 0 ? void 0 : _a.children.indexOf(leftNode)) || 0;
         const rightIndex = ((_b = rightNode.parent) === null || _b === void 0 ? void 0 : _b.children.indexOf(rightNode)) || 0;
@@ -128,7 +118,7 @@ export class TreeNode {
                 middleNode.mod += offset;
                 count++;
             }
-            this.checkConflicts2(leftNode);
+            this.checkConflicts(leftNode);
         }
     }
     static getSiblingsInBetween(start, end) {

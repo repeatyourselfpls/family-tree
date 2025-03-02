@@ -9,13 +9,13 @@ const J = new TreeNode("J", [])
 const K = new TreeNode("K", [])
 const L = new TreeNode("L", [])
 
-const A = new TreeNode("A", [new TreeNode("sam", []), new TreeNode("test", [])])
+const A = new TreeNode("A", [])
 const D = new TreeNode("D", [B, C])
 const G = new TreeNode("G", [])
 const M = new TreeNode("M", [H, I, J, K, L])
 
 const E = new TreeNode("E", [A, D])
-const F = new TreeNode("F", [])
+const F = new TreeNode("F", [new TreeNode("Z", [])])
 const N = new TreeNode("N", [G, M])
 
 const O = new TreeNode("O", [E, F, N])
@@ -88,4 +88,4 @@ const JW = new TreeNode("JW", [SB, BS, HH, BK])
 
 const TO = new TreeNode("TO", [JW])
 
-execute(TO)
+execute(O)
