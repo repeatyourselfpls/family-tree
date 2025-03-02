@@ -98,7 +98,7 @@ export class TreeNode {
     }
   }
 
-  // TODO: modify this so that you shift only after all levels of a sibling are consulted
+  // you shift only after all levels of a sibling are consulted
   static checkConflicts2(node: TreeNode) {
     const minDistance = TreeNode.NODE_SIZE + TreeNode.TREE_DISTANCE
 
