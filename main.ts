@@ -41,9 +41,12 @@ function execute(rootNode: TreeNode) {
   drawAllNodes(ctx, positionedNodes[0], null)
 }
 
+const sam = new TreeNode("sam", [])
+const surya = new TreeNode("surya", [])
+const d = new TreeNode("d", [])
 
 const XT = new TreeNode("XT", [])
-const VQ = new TreeNode("VQ", [])
+const VQ = new TreeNode("VQ", [sam, surya, d])
 const GM = new TreeNode("GM", [])
 const FW = new TreeNode("FW", [VQ, XT, GM])
 

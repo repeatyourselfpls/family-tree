@@ -31,8 +31,11 @@ function execute(rootNode) {
     const positionedNodes = fitToScreen(structuredClone(traversedNodes), width, height);
     drawAllNodes(ctx, positionedNodes[0], null);
 }
+const sam = new TreeNode("sam", []);
+const surya = new TreeNode("surya", []);
+const d = new TreeNode("d", []);
 const XT = new TreeNode("XT", []);
-const VQ = new TreeNode("VQ", []);
+const VQ = new TreeNode("VQ", [sam, surya, d]);
 const GM = new TreeNode("GM", []);
 const FW = new TreeNode("FW", [VQ, XT, GM]);
 const MF = new TreeNode("MF", []);
